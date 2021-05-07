@@ -7,7 +7,7 @@
 #       created by running installation script 01_install_PyOrbit_env.sh
 #######################################################################
 
-pyorbit_dir=py-orbit_20210317
+pyorbit_dir=py-orbit_20210507
 
 #clone pyorbit version from github:
 git clone --branch=master https://github.com/hannes-bartosik/py-orbit.git $pyorbit_dir
