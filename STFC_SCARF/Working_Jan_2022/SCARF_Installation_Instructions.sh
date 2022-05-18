@@ -1,7 +1,10 @@
 #!/bin/bash
 
 # Access SCARF Development Environment (node cn489.scarf.rl.ac.uk)
-srun -n6 --reservation=pyorbit_build --pty /bin/bash
+# srun -n6 --reservation=pyorbit_build --pty /bin/bash
+
+# Updated 18.05.22 - email from Derek Ross:
+salloc -n6 --reservation=pyorbit_build 
 
 # Create the required installation directory
 # mkdir PyORBIT_Test
