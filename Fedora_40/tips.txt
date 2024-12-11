@@ -1,0 +1,203 @@
+open-ssl RPMs can be found here (didn't seem to work): https://koji.fedoraproject.org/koji/buildinfo?buildID=2377878
+open-ssl source code: https://openssl-library.org/source/old/1.1.1/index.html
+
+https://stackoverflow.com/questions/44789416/python-build-error-failed-to-build-modules-ssl-and-hashlib
+
+# full fix:
+
+	wget https://github.com/openssl/openssl/releases/download/OpenSSL_1_0_2u/openssl-1.0.2u.tar.gz
+
+	tar xzvf openssl-1.0.2u.tar.gz
+
+	# Install openssl
+	# may require installation of PERL
+	cd "${BUILD_DIR}/openssl-1.0.2u"
+	./config --prefix="${INSTALL_DIR}" enable-shared
+	make
+	make install
+	
+# Next bug in compilation of mpich3.2 due to GCC being too new. 
+# full fix:
+
+	wget http://www.mpich.org/static/downloads/3.3.2/mpich-3.3.2.tar.gz
+	tar xzvf mpich-3.3.2.tar.gz
+	
+	# Install MPICH 
+	#cd "${BUILD_DIR}/mpich-3.2"
+	cd "${BUILD_DIR}/mpich-3.3.2"
+	
+	# Add compatibility flags for GCC 14.2
+	export CFLAGS="-fno-strict-aliasing -falign-functions -Wno-error=strict-aliasing -std=gnu89"
+	export CXXFLAGS="-fno-strict-aliasing -falign-functions -Wno-error=strict-aliasing -std=gnu++98"
+	export CFLAGS="$CFLAGS -std=c99"
+	export CXXFLAGS="$CXXFLAGS -std=c++98"
+	
+	# Configure and build MPICH
+	./configure --prefix="${INSTALL_DIR}" \
+		CC=gcc \
+		CXX=g++ \
+		CFLAGS="$CFLAGS" \
+		CXXFLAGS="$CXXFLAGS" \
+		--disable-fortran
+
+	make
+	make install
+	
+# edit setup script to point to correct pyorbit path
+# edit START_Local to ensure mpirun is used rather than pointing to a specific MPI version
+# i.e. use the mpirun in the custom environment
+
+# Next bug when running a simulation:
+
+	hr@fedora:~/Repositories/pyorbit_examples/03_PTC_PyORBIT_Examples/12_Injection_Painting_Setup/01_Master$ ./START_local.sh pyOrbit.py 1
+	python packages charged
+	ORBIT installed in /home/hr/Codes/cern_ptc_pyorbit/py-orbit
+	Python version is 2.7
+	Found python library: /home/hr/Codes/cern_ptc_pyorbit/lib/python2.7/config will use static library
+	Found Python include directory: /home/hr/Codes/cern_ptc_pyorbit/include/python2.7
+	MPI_CPP set to /home/hr/Codes/cern_ptc_pyorbit/py-orbit/../bin/mpicxx
+	customEnvironment done
+	/home/hr/Codes/cern_ptc_pyorbit/bin/python
+	/home/hr/Codes/cern_ptc_pyorbit/bin/mpirun
+
+	*****************************************************
+
+	full PyOrbit path:  /home/hr/Codes/cern_ptc_pyorbit/py-orbit
+
+	*****************************************************
+
+	Checking Git status of PyORBIT repository located in:
+	-----------------------------------------------------
+	/home/hr/Codes/cern_ptc_pyorbit/py-orbit
+
+	Repository origin:
+	------------------
+	https://github.com/hannes-bartosik/py-orbit.git
+
+	Available branches:
+	-------------------
+	* master
+	  remotes/origin/HEAD -> origin/master
+	  remotes/origin/analytical-space-charge
+	  remotes/origin/bug-fixes
+	  remotes/origin/feature/slicebyslice-longitudinalkick
+	  remotes/origin/fix_ions
+	  remotes/origin/foil-hits
+	  remotes/origin/master
+	  remotes/origin/new-features
+	  remotes/origin/newPTC
+
+	Current branch:
+	---------------
+	* master
+
+	Last commit:
+	------------
+	commit 32be842c3afb3289a07fa96e643b88549def7575
+	Author: Hannes Bartosik <hannes.bartosik@cern.ch>
+	Date:   Fri Dec 27 20:59:27 2019 +0100
+
+	*****************************************************
+
+	Checking Git status of PTC repository located in:
+	-------------------------------------------------
+	/home/hr/Codes/cern_ptc_pyorbit/py-orbit/ext/PTC
+
+	Repository origin:
+	------------------
+	https://github.com/hannes-bartosik/PTC.git
+
+	Available branches:
+	-------------------
+	* master
+	  remotes/origin/HEAD -> origin/master
+	  remotes/origin/PTC-interface-cleanup
+	  remotes/origin/analytical-space-charge
+	  remotes/origin/fix-ramp
+	  remotes/origin/master
+	  remotes/origin/newPTC
+
+	Current branch:
+	---------------
+	* master
+
+	Last commit:
+	------------
+	commit 2822c40403ec7b740c883e1ea94c324bd2b7bce9
+	Merge: a9cbbf5 35893be
+	Author: hannes-bartosik <hannes.bartosik@cern.ch>
+
+	*****************************************************
+	ERROR:root:code for hash md5 was not found.
+	Traceback (most recent call last):
+	  File "/home/hr/Codes/cern_ptc_pyorbit/lib/python2.7/hashlib.py", line 147, in <module>
+		globals()[__func_name] = __get_hash(__func_name)
+	  File "/home/hr/Codes/cern_ptc_pyorbit/lib/python2.7/hashlib.py", line 97, in __get_builtin_constructor
+		raise ValueError('unsupported hash type ' + name)
+	ValueError: unsupported hash type md5
+	ERROR:root:code for hash sha1 was not found.
+	Traceback (most recent call last):
+	  File "/home/hr/Codes/cern_ptc_pyorbit/lib/python2.7/hashlib.py", line 147, in <module>
+		globals()[__func_name] = __get_hash(__func_name)
+	  File "/home/hr/Codes/cern_ptc_pyorbit/lib/python2.7/hashlib.py", line 97, in __get_builtin_constructor
+		raise ValueError('unsupported hash type ' + name)
+	ValueError: unsupported hash type sha1
+	ERROR:root:code for hash sha224 was not found.
+	Traceback (most recent call last):
+	  File "/home/hr/Codes/cern_ptc_pyorbit/lib/python2.7/hashlib.py", line 147, in <module>
+		globals()[__func_name] = __get_hash(__func_name)
+	  File "/home/hr/Codes/cern_ptc_pyorbit/lib/python2.7/hashlib.py", line 97, in __get_builtin_constructor
+		raise ValueError('unsupported hash type ' + name)
+	ValueError: unsupported hash type sha224
+	ERROR:root:code for hash sha256 was not found.
+	Traceback (most recent call last):
+	  File "/home/hr/Codes/cern_ptc_pyorbit/lib/python2.7/hashlib.py", line 147, in <module>
+		globals()[__func_name] = __get_hash(__func_name)
+	  File "/home/hr/Codes/cern_ptc_pyorbit/lib/python2.7/hashlib.py", line 97, in __get_builtin_constructor
+		raise ValueError('unsupported hash type ' + name)
+	ValueError: unsupported hash type sha256
+	ERROR:root:code for hash sha384 was not found.
+	Traceback (most recent call last):
+	  File "/home/hr/Codes/cern_ptc_pyorbit/lib/python2.7/hashlib.py", line 147, in <module>
+		globals()[__func_name] = __get_hash(__func_name)
+	  File "/home/hr/Codes/cern_ptc_pyorbit/lib/python2.7/hashlib.py", line 97, in __get_builtin_constructor
+		raise ValueError('unsupported hash type ' + name)
+	ValueError: unsupported hash type sha384
+	ERROR:root:code for hash sha512 was not found.
+	Traceback (most recent call last):
+	  File "/home/hr/Codes/cern_ptc_pyorbit/lib/python2.7/hashlib.py", line 147, in <module>
+		globals()[__func_name] = __get_hash(__func_name)
+	  File "/home/hr/Codes/cern_ptc_pyorbit/lib/python2.7/hashlib.py", line 97, in __get_builtin_constructor
+		raise ValueError('unsupported hash type ' + name)
+	ValueError: unsupported hash type sha512
+	Traceback (most recent call last):
+	  File "pyOrbit.py", line 75, in <module>
+		from lib.pyOrbit_Bunch_Gather_new import *
+	  File "/home/hr/Repositories/pyorbit_examples/03_PTC_PyORBIT_Examples/12_Injection_Painting_Setup/01_Master/lib/pyOrbit_Bunch_Gather_new.py", line 15, in <module>
+		import matplotlib.pyplot as plt
+	  File "/home/hr/Codes/cern_ptc_pyorbit/lib/python2.7/site-packages/matplotlib/pyplot.py", line 31, in <module>
+		import matplotlib.colorbar
+	  File "/home/hr/Codes/cern_ptc_pyorbit/lib/python2.7/site-packages/matplotlib/colorbar.py", line 36, in <module>
+		import matplotlib.contour as contour
+	  File "/home/hr/Codes/cern_ptc_pyorbit/lib/python2.7/site-packages/matplotlib/contour.py", line 27, in <module>
+		import matplotlib.texmanager as texmanager
+	  File "/home/hr/Codes/cern_ptc_pyorbit/lib/python2.7/site-packages/matplotlib/texmanager.py", line 48, in <module>
+		from hashlib import md5
+	ImportError: cannot import name md5
+
+# reinstall and ensure this is present from the python installation
+# Now have the following error (not sure if above is resolved as MPI bug should hit first):
+
+	*****************************************************
+	Invalid error code (-2) (error ring index 127 invalid)
+	INTERNAL ERROR: invalid error code fffffffe (Ring Index out of range) in MPID_nem_tcp_init:373
+	Fatal error in PMPI_Init: Other MPI error, error stack:
+	MPIR_Init_thread(586)..............: 
+	MPID_Init(224).....................: channel initialization failed
+	MPIDI_CH3_Init(105)................: 
+	MPID_nem_init(324).................: 
+	MPID_nem_tcp_init(175).............: 
+	MPID_nem_tcp_get_business_card(401): 
+	MPID_nem_tcp_init(373).............: gethostbyname failed, fedora (errno 0)
+
+
